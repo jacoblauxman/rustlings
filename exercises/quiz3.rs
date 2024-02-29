@@ -16,18 +16,36 @@
 //
 // Execute `rustlings hint quiz3` or use the `hint` watch subcommand for a hint.
 
-// I AM NOT DONE
+// added:
+pub enum Grade {
+    Num(f32),
+    Alpha(String),
+}
 
+impl std::fmt::Display for Grade {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Grade::Num(n) => write!(f, "{n}"),
+            Grade::Alpha(n) => write!(f, "{n}"),
+            _ => Err(std::fmt::Error),
+        }
+    }
+}
+
+// edited:
 pub struct ReportCard {
-    pub grade: f32,
+    // pub grade: f32,
+    pub grade: Grade,
     pub student_name: String,
     pub student_age: u8,
 }
 
 impl ReportCard {
     pub fn print(&self) -> String {
-        format!("{} ({}) - achieved a grade of {}",
-            &self.student_name, &self.student_age, &self.grade)
+        format!(
+            "{} ({}) - achieved a grade of {}",
+            &self.student_name, &self.student_age, &self.grade
+        )
     }
 }
 
@@ -38,7 +56,8 @@ mod tests {
     #[test]
     fn generate_numeric_report_card() {
         let report_card = ReportCard {
-            grade: 2.1,
+            // grade: 2.1,
+            grade: Grade::Num(2.1),
             student_name: "Tom Wriggle".to_string(),
             student_age: 12,
         };
@@ -52,7 +71,8 @@ mod tests {
     fn generate_alphabetic_report_card() {
         // TODO: Make sure to change the grade here after you finish the exercise.
         let report_card = ReportCard {
-            grade: 2.1,
+            // grade: 2.1,
+            grade: Grade::Alpha("A+".to_string()),
             student_name: "Gary Plotter".to_string(),
             student_age: 11,
         };
