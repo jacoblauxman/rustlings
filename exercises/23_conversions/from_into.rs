@@ -40,12 +40,78 @@ impl Default for Person {
 // If while parsing the age, something goes wrong, then return the default of
 // Person Otherwise, then return an instantiated Person object with the results
 
-// I AM NOT DONE
-
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        if s.is_empty() {
+            return Person::default();
+        }
+
+        let person_parts: Vec<_> = s.split(',').map(|part| part.trim()).take(2).collect();
+        if person_parts.len() < 2 || person_parts[0].is_empty() {
+            return Person::default();
+        }
+
+        let name = person_parts[0].to_string();
+        let age = match person_parts[1].parse::<usize>() {
+            Ok(age) => age,
+            Err(_) => return Person::default(),
+        };
+
+        Person { name, age }
     }
 }
+
+// shorter, sweeter (from Lazy Ren)
+// impl From<&str> for Person {
+//     fn from(s: &str) -> Person {
+//         let (name, age) = match s.split_once(',') {
+//             Some((name, age)) => (name.trim(), age.trim()),
+//             _ => return Person::default(),
+//         };
+
+//         if let Ok(age) = age.parse::<usize>() {
+//             if name.len() > 0 {
+//                 return Person {
+//                     name: name.into(),
+//                     age,
+//                 };
+//             }
+//         }
+
+//         Person::default()
+//     }
+// }
+
+// Couldn't quite figure out how to handle trailing "," +
+
+// impl From<&str> for Person {
+//     fn from(s: &str) -> Person {
+//         // early return of empty input
+//         if s.len() == 0 {
+//             return Person::default();
+//         }
+
+//         // string has length, split on comma
+//         s.split_once(',')
+//             // filter first - if name is empty (skip to bottom `Person::default()`)
+//             .filter(|(name, age)| !name.trim().is_empty())
+//             // name isn't empty,
+//             .map(|(name, age)| {
+//                 // try and map `age` to usize via `parse` => if successful, map `age` and `name` to `Person` struct
+//                 age.trim()
+//                     .parse::<usize>()
+//                     .map(|age| Person {
+//                         name: name.to_string(),
+//                         age,
+//                     })
+//                     // this confirms our parsing and mapping to `Person` struct was an `Ok` Result type
+//                     .ok()
+//             })
+//             // .unwrap()
+//             .flatten()
+//             .unwrap_or_default()
+//     }
+// }
 
 fn main() {
     // Use the `from` function

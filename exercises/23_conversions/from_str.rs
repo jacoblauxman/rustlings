@@ -31,8 +31,6 @@ enum ParsePersonError {
     ParseInt(ParseIntError),
 }
 
-// I AM NOT DONE
-
 // Steps:
 // 1. If the length of the provided string is 0, an error should be returned
 // 2. Split the given string on the commas present in it
@@ -49,11 +47,95 @@ enum ParsePersonError {
 // you want to return a string error message, you can do so via just using
 // return `Err("my error message".into())`.
 
+// 1)
 impl FromStr for Person {
     type Err = ParsePersonError;
     fn from_str(s: &str) -> Result<Person, Self::Err> {
+        // empty input
+        if s.is_empty() {
+            return Err(ParsePersonError::Empty);
+        }
+        // improper input data shape (too many commas!)
+        if s.chars().filter(|&c| c == ',').count() != 1 {
+            return Err(ParsePersonError::BadLen);
+        }
+
+        // get name and age fields, err if not split'able (should be unreachable re: above)
+        let (name, age) = s.split_once(',').ok_or(ParsePersonError::BadLen)?;
+        // empty name check
+        if name.is_empty() {
+            return Err(ParsePersonError::NoName);
+        }
+        // check age parsing
+        let age = age.parse::<usize>().map_err(ParsePersonError::ParseInt)?;
+
+        Ok(Person {
+            name: name.into(),
+            age,
+        })
     }
 }
+
+// 2)
+// impl FromStr for Person {
+//     type Err = ParsePersonError;
+//     fn from_str(s: &str) -> Result<Person, Self::Err> {
+//         // check for empty input
+//         if s.is_empty() {
+//             return Err(ParsePersonError::Empty);
+//         }
+
+//         let s_elements: Vec<_> = s.split(',').collect();
+//         if s_elements.len() != 2 {
+//             return Err(ParsePersonError::BadLen);
+//         }
+
+//         let name = s_elements[0].to_string();
+
+//         if name.is_empty() {
+//             return Err(ParsePersonError::NoName);
+//         }
+
+//         let age = match s_elements[1].parse::<usize>() {
+//             Ok(age) => age,
+//             Err(err) => return Err(ParsePersonError::ParseInt(err)),
+//         };
+
+//         Ok(Person {
+//             name: name.into(),
+//             age,
+//         })
+//     }
+// }
+
+// another version (via Lazy Ren):
+
+// impl FromStr for Person {
+//     type Err = ParsePersonError;
+//     fn from_str(s: &str) -> Person {
+//         if s.is_empty() {
+//             return Err(ParsePersonError::Empty);
+//         }
+
+//         let person_fields = s.split(',').collect::<Vec<String>>();
+//         let (name, age) = match &person_fields[..] {
+//             [name, age] => (
+//                 name.to_string(),
+//                 age.parse().map_err(ParesPersonError::ParseInt)?,
+//             ),
+//             _ => return Err(ParsePersonErr::BadLen),
+//         };
+
+//         if name.is_empty() {
+//             return Err(ParsePersonError::NoName);
+//         }
+
+//         Ok(Person {
+//             name: name.into(),
+//             age,
+//         })
+//     }
+// }
 
 fn main() {
     let p = "Mark,20".parse::<Person>().unwrap();
